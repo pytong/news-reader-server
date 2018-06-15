@@ -6,14 +6,13 @@ const app = express();
 const axios = require('axios');
 const extractor = require('unfluff');
 
-app.use(cors());
 
-var corsOptions = {
+const corsOptions = {
   origin: 'http://localhost:3000',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
-router.get('/', async function(req, res, next) {
+router.get('/', cors(corsOptions), async function(req, res, next) {
   try {
     const decodedUrl = decodeURI(req.query.articleUrl);
     const response = await axios.get(decodedUrl);
