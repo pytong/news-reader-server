@@ -3,6 +3,7 @@ const cors = require('cors');
 const router = express.Router();
 const app = express();
 
+const _ = require('lodash');
 const axios = require('axios');
 const extractor = require('unfluff');
 
@@ -18,7 +19,11 @@ router.get('/', cors(corsOptions), async function(req, res, next) {
     const response = await axios.get(decodedUrl);
 
     const htmlData = response.data;
-    const newsContent = extractor(htmlData).text;
+
+    let newsContent = extractor(htmlData).text;
+    let lines = newsContent.split('\n');
+    lines = _.uniq(lines);
+    newsContent = lines.join('\n');
 
     res.send({ content: newsContent })
   } catch(e) {
