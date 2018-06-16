@@ -7,9 +7,10 @@ const app = express();
 const _ = require('lodash');
 const axios = require('axios');
 const extractor = require('unfluff');
+const crypto = require('crypto');
 
-const snapshotDir = 'public/images';
-const snapshotPath = `/${snapshotDir}/snapshot.png`;
+const snapshotDir = 'images';
+const staticSnapshotDir = `public/${snapshotDir}`
 
 const corsOptions = {
   origin: 'http://localhost:3000',
@@ -36,6 +37,10 @@ const extractText = async (url) => {
   return text;
 }
 
+const generateFilenameFromUrl = (url) => {
+  return crypto.createHash('md5').update(url).digest("hex");
+}
+
 router.get('/content', cors(corsOptions), async function(req, res, next) {
   try {
     const decodedUrl = decodeURI(req.query.articleUrl);
@@ -49,8 +54,11 @@ router.get('/content', cors(corsOptions), async function(req, res, next) {
 router.get('/screenshot', cors(corsOptions), async function(req, res, next) {
   try {
     const decodedUrl = decodeURI(req.query.articleUrl);
-    await generateSnapshot(decodedUrl, `${process.cwd()}/${snapshotPath}`);
-    res.send({ snapshotPath: `http://localhost:3001/images/snapshot.png` });
+    const screenshotFilename = generateFilenameFromUrl(decodedUrl);
+
+    await generateSnapshot(decodedUrl, `${process.cwd()}/${staticSnapshotDir}/${screenshotFilename}.png`);
+
+    res.send({ snapshotPath: `http://localhost:3001/${snapshotDir}/${screenshotFilename}.png` });
   } catch(e) {
     console.log(e);
   };
