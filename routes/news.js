@@ -28,9 +28,12 @@ const generateSnapshot = async(url, snapshotPath) => {
 const extractText = async (url) => {
   const response = await axios.get(url);
   const htmlData = response.data;
+  const extractedData = extractor(htmlData);
+  const text = extractedData.text;
+  const lines = text.split('\n');
 
-  let text = extractor(htmlData).text;
-  let lines = text.split('\n');
+  console.log(text);
+
   lines = _.uniq(lines);
   text = lines.join('\n');
 
@@ -44,7 +47,7 @@ const generateFilenameFromUrl = (url) => {
 router.get('/content', cors(corsOptions), async function(req, res, next) {
   try {
     const decodedUrl = decodeURI(req.query.articleUrl);
-    const newsContent = extractText(decodedUrl);
+    const newsContent = await extractText('https://www.quora.com/What-are-the-best-things-to-order-at-The-Cheesecake-Factory');
     res.send({ content: newsContent });
   } catch(e) {
     console.log(e);
